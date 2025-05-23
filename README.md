@@ -9,6 +9,7 @@ Built with **DearPyGui** for the interface and **crawl4ai** for asynchronous scr
 
 - Scrapes **CheckCarDetails.co.uk** for general vehicle specs and MOT/tax information.
 - Scrapes **PhantomTuning.co.uk** for Stage 1 remap data (BHP and Torque gains).
+- Optionally saves markdown files from **crawl4ai**.
 
 
 
