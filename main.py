@@ -24,14 +24,44 @@ loop_thread.start()
 
 # GUI class for the registration lookup application
 class LookupGUI:
-    def __init__(self, title="Registration Lookup", width=400, height=610):
+    def __init__(self, title="Registration Lookup", width=400, height=640):
         self.title = title
         self.width = width
         self.height = height
 
+    
+    def setup_theme(self):
+        # Load font
+        with dpg.font_registry():
+            font_path = r"C:\Windows\Fonts\segoeui.ttf" 
+            menu_font = dpg.add_font(font_path, 16)
+        dpg.bind_font(menu_font)
+    
+        # Load color theme
+        with dpg.theme() as global_theme:
+            with dpg.theme_component(dpg.mvAll):
+                dpg.add_theme_color(dpg.mvThemeCol_WindowBg, (30, 30, 30), category=dpg.mvThemeCat_Core)
+                dpg.add_theme_color(dpg.mvThemeCol_FrameBg, (44, 44, 44), category=dpg.mvThemeCat_Core)
+                dpg.add_theme_color(dpg.mvThemeCol_FrameBgHovered, (55, 55, 55), category=dpg.mvThemeCat_Core)
+                dpg.add_theme_color(dpg.mvThemeCol_FrameBgActive, (66, 66, 66), category=dpg.mvThemeCat_Core)
+                dpg.add_theme_color(dpg.mvThemeCol_Text, (255, 255, 255), category=dpg.mvThemeCat_Core)
+                dpg.add_theme_color(dpg.mvThemeCol_Button, (55, 55, 55), category=dpg.mvThemeCat_Core)
+                dpg.add_theme_color(dpg.mvThemeCol_ButtonHovered, (66, 66, 66), category=dpg.mvThemeCat_Core)
+                dpg.add_theme_color(dpg.mvThemeCol_ButtonActive, (77, 77, 77), category=dpg.mvThemeCat_Core)
+                dpg.add_theme_color(dpg.mvThemeCol_ChildBg, (44, 44, 44), category=dpg.mvThemeCat_Core)
+                dpg.add_theme_color(dpg.mvThemeCol_Border, (67, 68, 69), category=dpg.mvThemeCat_Core)
+                dpg.add_theme_color(dpg.mvThemeCol_BorderShadow, (0, 0, 0, 63), category=dpg.mvThemeCat_Core)
+                dpg.add_theme_color(dpg.mvThemeCol_CheckMark, (255, 106, 106, 255), category=dpg.mvThemeCat_Core)
+                dpg.add_theme_style(dpg.mvStyleVar_FrameBorderSize, 1.0, category=dpg.mvThemeCat_Core)
+            
+        dpg.bind_theme(global_theme)
+
     # Draw the GUI components
     def setup(self):
+        self.setup_theme()
+
         with dpg.window(label=self.title, tag="MainWindow"):
+            
             dpg.add_text("Registration Number")
             dpg.add_input_text(label="##Enter Registration Number", tag="input_reg", default_value="", width=-1)
 
@@ -60,7 +90,7 @@ class LookupGUI:
             event_loop.call_soon_threadsafe(asyncio.create_task, fetch_remap_details(reg_num))
 
     # Function to init the GUI
-    def run(self):
+    def run(self): 
         dpg.create_context()
         self.setup()
         dpg.create_viewport(title=self.title, width=self.width, height=self.height)
@@ -109,7 +139,7 @@ def clear_results(child):
 def display_info(info_dict, child):
     for label, value in info_dict.items():
         with dpg.group(horizontal=True, parent=child):
-            dpg.add_text(f"{label}: ", color=[255, 0, 0])
+            dpg.add_text(f"{label}: ", color=[255, 106, 106, 255])
             dpg.add_text(str(value), color=[255, 255, 255])
     dpg.add_spacer(height=5, parent=child)
 
@@ -146,15 +176,26 @@ async def fetch_details(registration_number):
         "Vehicle Age": extract_line("Vehicle Age| ", lines),
         "Last V5C Issue": extract_line("Last V5C Issue Date| ", lines),
         "Last MOT Mileage": extract_line("Last MOT Mileage| ", lines),
+        "Average Yearly Mileage": extract_line("Average| ", lines),
         "Max Speed": extract_line("Max Speed| ", lines),
         "BHP": extract_line("Power| ", lines),
         "Torque": extract_line("Torque| ", lines),
         "0-60 (mph)": extract_line("0 To 60 MPH| ", lines),
         "Road Tax Estimate (12 Month)": extract_line("Tax 12 Months Cost| ", lines),
+        "Road Tax Estimate (6 Month)": extract_line("Tax 6 Months Cost| ", lines),	
         "Passed MOT": find_next_line("Passed", lines),
         "Failed MOT": find_next_line("Failed", lines),
         "MOT Expiry": find_next_line("## MOT", lines).replace("Expires: ", ""),
-        "Tax Expirery": find_next_line("## TAX", lines).replace("Expires: ", "")
+        "Tax Expirery": find_next_line("## TAX", lines).replace("Expires: ", ""),
+        "Wheel Plan": extract_line("Wheel Plan| ", lines),
+        "Registration Place": extract_line("Registration Place| ", lines),
+        "Registration Date": extract_line("Registration Date| ", lines),
+        "Total Keepers": find_next_line("Total Keepers", lines),
+        "V5C Certificate Count": find_next_line("V5C Certificate Count", lines),
+        "Is Explorted": find_next_line("Exported", lines),
+        "Towns & Cities MPG": extract_line("Urban Driving around towns and cities| ", lines),
+        "Towns & Faster A-Roads": extract_line("Extra Urban Driving in towns and on faster A-roads| ", lines),
+        "Combined MPG": extract_line("Combined A mix of urban and extra urban driving| ", lines),
     }
 
     clear_results("results_child")
