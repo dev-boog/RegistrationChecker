@@ -6,7 +6,6 @@ import dearpygui.dearpygui as dpg
 from crawl4ai import AsyncWebCrawler
 from crawl4ai.async_configs import BrowserConfig, CrawlerRunConfig
 
-
 # Configure the web crawler
 browser_congfig = BrowserConfig()
 run_config = CrawlerRunConfig()
@@ -25,7 +24,7 @@ loop_thread.start()
 
 # GUI class for the registration lookup application
 class LookupGUI:
-    def __init__(self, title="Registration Lookup", width=400, height=595):
+    def __init__(self, title="Registration Lookup", width=400, height=610):
         self.title = title
         self.width = width
         self.height = height
@@ -37,6 +36,8 @@ class LookupGUI:
             dpg.add_input_text(label="##Enter Registration Number", tag="input_reg", default_value="", width=-1)
 
             dpg.add_button(label="Fetch Information", callback=self.search_reg, width=-1)
+
+            dpg.add_checkbox(label="Save Markdown Files", tag="save_markdown", default_value=False) 
 
             dpg.add_text("General Information (CheckCarDetails)", bullet=True)
             with dpg.child_window(tag="results_child", width=-1, height=360, no_scrollbar=False):
@@ -125,6 +126,10 @@ async def fetch_details(registration_number):
                 "###### MOT History"
             ]
             lines = [line for line in lines if line not in unwanted_data]
+            if (dpg.get_value("save_markdown")):
+                with open(f"MarkdownFiles/{registration_number}_CarCheckDetails.md", "w") as f:
+                    f.write(result.markdown)
+                    f.close()
     except Exception as e:
         print(f"Error fetching details: {e}")
         return
@@ -161,6 +166,10 @@ async def fetch_remap_details(registration_number):
         async with AsyncWebCrawler(config=browser_congfig) as crawler:  
             result = await crawler.arun(url=f"https://beds.phantomtuning.co.uk/pt/results-engine/?reg={registration_number}", config=run_config)
             lines = result.markdown.splitlines()
+            if (dpg.get_value("save_markdown")):
+                with open(f"MarkdownFiles/{registration_number}_PhantomTuning.md", "w") as f:
+                    f.write(result.markdown)
+                    f.close()
     except Exception as e:
         print(f"Error fetching remap details: {e}")
         return
