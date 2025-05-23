@@ -79,13 +79,13 @@ class LookupGUI:
     def search_reg(self, sender, app_data, user_data):
         reg_num = dpg.get_value("input_reg").strip()
         if reg_num:
-            asyncio.clear_results("results_child")
-            asyncio.clear_results("results_performance_child")
+            clear_results("results_child")
+            clear_results("results_performance_child")
 
             dpg.add_text(f"Crawling checkcardetails.co.uk...", parent="results_child")
-            event_loop.call_soon_threadsafe(asyncio.create_task, fetch_details(reg_num))
+            event_loop.call_soon_threadsafe(asyncio.create_task, fetch_details(reg_num, dpg.get_value("save_markdown")))
             dpg.add_text(f"Crawling phantomtuning.co.uk...", parent="results_performance_child")
-            event_loop.call_soon_threadsafe(asyncio.create_task, fetch_remap_details(reg_num))
+            event_loop.call_soon_threadsafe(asyncio.create_task, fetch_remap_details(reg_num, dpg.get_value("save_markdown")))
 
     # Function to init the GUI
     def run(self):  

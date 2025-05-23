@@ -29,7 +29,7 @@ def find_previous_line(prefix, lines):
                 return "N/A"  
     return "N/A"
 
-async def fetch_details(registration_number):
+async def fetch_details(registration_number, save_markdown):
     try:
         async with AsyncWebCrawler(config=browser_congfig) as crawler:
             result = await crawler.arun(url=f"https://www.checkcardetails.co.uk/cardetails/{registration_number}", config=run_config)          
@@ -39,7 +39,7 @@ async def fetch_details(registration_number):
                 "###### MOT History"
             ]
             lines = [line for line in lines if line not in unwanted_data]
-            if (dpg.get_value("save_markdown")):
+            if (save_markdown == True):
                 with open(f"MarkdownFiles/{registration_number}_CarCheckDetails.md", "w") as f:
                     f.write(result.markdown)
                     f.close()
@@ -85,12 +85,12 @@ async def fetch_details(registration_number):
     display_info(general_info, "results_child")	
 
 # Scrape details on remaping the car from PhantomTuning.co.uk 
-async def fetch_remap_details(registration_number):
+async def fetch_remap_details(registration_number, save_markdown):
     try:
         async with AsyncWebCrawler(config=browser_congfig) as crawler:  
             result = await crawler.arun(url=f"https://beds.phantomtuning.co.uk/pt/results-engine/?reg={registration_number}", config=run_config)
             lines = result.markdown.splitlines()
-            if (dpg.get_value("save_markdown")):
+            if (save_markdown == True):
                 with open(f"MarkdownFiles/{registration_number}_PhantomTuning.md", "w") as f:
                     f.write(result.markdown)
                     f.close()
